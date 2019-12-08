@@ -1,0 +1,118 @@
+```{r Load data and libraries}
+rm(list=ls())
+# Random seed 
+set.seed(1992)
+# Load library
+library(kernlab)
+# Load functions
+source("kkmeans.R")
+# Load ring data
+ring_data <- read.csv("ring_dataset.csv")
+# keep ring coordinates as a matrix
+ring.matrix <- as.matrix(ring_data)[,2:3]
+# Load moons data
+moons_data <- read.csv("moons_dataset.csv", header = FALSE)
+# keep moons coordinates as a matrix
+moons.matrix <- as.matrix(moons_data)[,1:2]
+```
+
+# Ring data
+
+```{r Plot}
+# Plot the original data
+plot(ring.matrix, col="black", xlab = "x", ylab = "y", pch = 20, asp = 1)
+```
+
+```{r Perform standard kmeans}
+# Perform standard kmeans, and plot result
+start.time <- Sys.time()
+cluster.kmeans <- kmeans(ring.matrix, 2)
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+plot(ring.matrix, col=as.factor(cluster.kmeans$cluster), xlab = "x", ylab = "y", pch = 20, asp = 1)
+accuracy(as.factor(cluster.kmeans$cluster), ring_data$label+1)
+```
+
+```{r Perform kernel kmeans}
+# Perform kkmeans, and plot result
+start.time <- Sys.time()
+cluster.kkmeans <- kkmeans(ring.matrix, 2, kernel='rbfdot')
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+plot(ring.matrix, col=as.factor(cluster.kkmeans@.Data), xlab = "x", ylab = "y", pch = 20, asp = 1)
+accuracy(as.factor(cluster.kkmeans@.Data), ring_data$label+1)
+```
+
+```{r Perform own implementation of kernel kmeans}
+# Perform own kkmeans, and plot result
+# Initialize with the results from Kmeans
+ini.clusters <- cluster.kmeans$cluster
+ini.ohencoding <- ohencoding_cluster(ini.clusters, 2)
+# Initialize with random clustering
+random.ini <- random_cluster(nrow(ring.matrix), 2)
+plot(ring.matrix, col=as.factor(cluster_labels(random.ini,2)), xlab = "x", ylab = "y", pch = 20, asp = 1)
+K <- kernelMatrix(rbfdot(), ring.matrix, y = NULL)
+start.time <- Sys.time()
+cluster.kkmenas_own <- kkmeans_own(K, 2, random.ini, nrow(K))
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+plot(ring.matrix, col=as.factor(cluster_labels(cluster.kkmenas_own, 2)), xlab = "x", ylab = "y", pch = 20, asp = 1)
+accuracy(as.factor(cluster_labels(cluster.kkmenas_own, 2)), ring_data$label+1)
+```
+
+# Moons data
+
+```{r Plot}
+# Plot the original data
+plot(moons.matrix, col="black", xlab = "x", ylab = "y", pch = 20, asp = 1)
+```
+
+```{r Perform standard kmeans}
+# Perform standard kmeans, and plot result
+start.time <- Sys.time()
+cluster.kmeans <- kmeans(moons.matrix, 2)
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+plot(moons.matrix, col=as.factor(cluster.kmeans$cluster), xlab = "x", ylab = "y", pch = 20, asp = 1)
+accuracy(as.factor(cluster.kmeans$cluster), moons_data$V3)
+```
+
+```{r Perform kernel kmeans}
+# Perform kkmeans, and plot result
+start.time <- Sys.time()
+cluster.kkmeans <- kkmeans(moons.matrix, 2, kernel='rbfdot')
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+plot(moons.matrix, col=as.factor(cluster.kkmeans@.Data), xlab = "x", ylab = "y", pch = 20, asp = 1)
+accuracy(as.factor(cluster.kkmeans@.Data), moons_data$V3)
+```
+
+```{r Perform own implementation of kernel kmeans}
+# Perform own kkmeans, and plot result
+# Initialize with random clustering
+random.ini <- random_cluster(nrow(moons.matrix), 2)
+plot(moons.matrix, col=as.factor(cluster_labels(random.ini,2)), xlab = "x", ylab = "y", pch = 20, asp = 1)
+K <- kernelMatrix(rbfdot(), moons.matrix, y = NULL)
+start.time <- Sys.time()
+cluster.kkmenas_own <- kkmeans_own(K, 2, random.ini, nrow(K))
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+plot(moons.matrix, col=as.factor(cluster_labels(cluster.kkmenas_own, 2)), xlab = "x", ylab = "y", pch = 20, asp = 1)
+accuracy(as.factor(cluster_labels(cluster.kkmenas_own, 2)), moons_data$V3)
+```
+
+
+
+
+
+
+
+
+
+

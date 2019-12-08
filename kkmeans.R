@@ -65,6 +65,19 @@ cluster_labels <- function(dummy_variables, num_clusters){
 }
 
 
+# Function to obtain the accuracy
+accuracy <- function(prediction, real){
+  success <- 0
+  for(i in 1:length(prediction)){
+    if (prediction[i] == real[i]) {
+      success <- success + 1
+    }
+  }
+  accuracy <- success / length(prediction)
+  accuracy <- max(accuracy, 1-accuracy)
+  return(accuracy)
+}
+
 
 
 
